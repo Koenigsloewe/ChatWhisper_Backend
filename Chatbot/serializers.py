@@ -5,14 +5,14 @@ from .models import ChatInstruction, ChatConversation, ChatMessage
 class ChatInstructionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatInstruction
-        fields = ['instruction', 'user']
+        fields = ['instruction']
 
 
 class ChatConversationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChatConversation
-        fields = ['id', 'name',]
+        fields = ['id', 'name']
 
 
 class ChatMessageSerializer(serializers.ModelSerializer):
