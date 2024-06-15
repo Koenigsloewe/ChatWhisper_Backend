@@ -84,16 +84,24 @@ class ProcessUserInputView(APIView):
         if not user_input:
             return Response({'error': 'User input is required.'}, status=400)
 
+        # Fetch the last 10 messages
+        previous_messages = ChatMessage.objects.filter(conversation=conversation).order_by('-id')[:10]
+        previous_messages = reversed(previous_messages)  # Reverse to maintain the chronological order
+
+        previous_messages_data = [
+            {'sender': msg.sender, 'message': msg.message} for msg in previous_messages
+        ]
+
         ChatMessage.objects.create(
             conversation=conversation,
             message=user_input,
             sender='user'
         )
-        instruction_instance = ChatInstruction.objects.filter(user=request.user).first()
 
+        instruction_instance = ChatInstruction.objects.filter(user=request.user).first()
         serializer = ChatInstructionSerializer(instruction_instance)
 
-        llm_response = llm_model.get_response(serializer.data.get('instruction'), user_input)
+        llm_response = llm_model.get_response(serializer.data.get('instruction'), user_input, previous_messages_data)
 
         chat_message = ChatMessage.objects.create(
             conversation=conversation,

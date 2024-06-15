@@ -22,12 +22,15 @@ class LlmModel:
             seed=seed,
         )
 
-    def get_response(self, system_prompt, user_input):
+    def get_response(self, system_prompt, user_input, previous_messages):
         llama_cpp_agent = LlamaCppAgent(self.main_model, debug_output=False,
                                         system_prompt=system_prompt,
                                         predefined_messages_formatter_type=MessagesFormatterType.CHATML)
 
-        response = llama_cpp_agent.get_chat_response(user_input, temperature=0.7, print_output=False)
+        context = "\n".join([f"{msg['sender']}: {msg['message']}" for msg in previous_messages])
+        full_prompt = f"{system_prompt}\n\n{context}\nUser: {user_input}\nAI:"
+
+        response = llama_cpp_agent.get_chat_response(full_prompt, temperature=0.7, print_output=False)
         return response
 
 
